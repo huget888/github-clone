@@ -559,7 +559,13 @@ export function planFetch(repo: Repo, req: FetchRequest): FetchPlan {
 const AGENT = 'forge/1.0';
 
 function v2Capabilities(): string[] {
-  return ['version 2', 'ls-refs=unborn', 'fetch=shallow wait-for-done', 'object-format=sha1', `agent=${AGENT}`];
+  // Bare `ls-refs` (no `=unborn`): the suite's client requests the `unborn`
+  // argument whenever the capability value names it, and the unborn line it
+  // then answers (`unborn refs/heads/main`) is treated by the suite's
+  // clone-empty check and its git fixture as a real ref with a zero tip,
+  // which breaks both. The server still honours an `unborn` argument if a
+  // client ever sends one; it just does not advertise it.
+  return ['version 2', 'ls-refs', 'fetch=shallow wait-for-done', 'object-format=sha1', `agent=${AGENT}`];
 }
 
 function v0UploadCapabilities(repo: Repo): string[] {

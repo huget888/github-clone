@@ -254,7 +254,10 @@ function commitJson(repo: Repo, sha: string): Record<string, unknown> | null {
     sha,
     node_id: gid('commit', `${repo.fullName}#${sha}`),
     commit: {
-      message: info.message,
+      // Git objects store the message with its trailing newline; the REST
+      // presentation (like GitHub's) drops it, and the suite compares the
+      // message byte-for-byte against the message it sent.
+      message: info.message.replace(/\n+$/, ''),
       author,
       committer,
       tree: { sha: info.tree },
